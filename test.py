@@ -1,13 +1,13 @@
-from agents.planner import PlannerAgent
-from core.schemas import PlannerInput
+from graph.agent_graph import build_graph
 
-planner = PlannerAgent()
+graph = build_graph()
 
-result = planner.run(
-    PlannerInput(
-        question="What is the impact of generative AI on agriculture in India?"
-    )
-)
+result = graph.invoke({
+    "question": "Impact of generative AI in Indian agriculture",
+    "tasks": [],
+    "documents": [],
+    "analysis": None,
+    "report": ""
+})
 
-for task in result.tasks:
-    print(task)
+print(result["tasks"])
