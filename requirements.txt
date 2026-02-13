@@ -1,5 +1,6 @@
 langgraph
 langchain
+langchain-huggingface
 langchain-community
 langchain-groq
 fastapi
