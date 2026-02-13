@@ -10,4 +10,7 @@ result = graph.invoke({
     "report": ""
 })
 
+
 print(result["tasks"])
+print("*"*35)
+print(result["documents"])
