@@ -45,19 +45,34 @@ Do not include explanations outside JSON.
 
         response = self.llm.invoke(prompt).content
         
-        # Extract JSON block using regex
-        json_match = re.search(r"\{.*\}", response, re.DOTALL)
+        def extract_json(text):
+            json_match = re.search(r"\{.*\}", text, re.DOTALL)
+            if not json_match:
+                return None
+            return json_match.group()
 
-        if not json_match:
-            raise ValueError("No JSON object found in LLM response")
+        json_str = extract_json(response)
 
-        json_str = json_match.group()
+        if not json_str:
+            raise ValueError("No JSON found in LLM response")
 
         try:
             parsed = json.loads(json_str)
-
         except json.JSONDecodeError:
-            raise ValueError("Invalid JSON format returned by LLM")
+            # Retry once with strict correction instruction
+            fix_prompt = f"""
+        The following JSON is invalid. Fix it and return ONLY valid JSON.
+
+        Invalid JSON:
+        {json_str}
+        """
+            fixed_response = self.llm.invoke(fix_prompt).content
+            fixed_json = extract_json(fixed_response)
+
+            if not fixed_json:
+                raise ValueError("Retry failed: No JSON found")
+
+            parsed = json.loads(fixed_json)
 
         return {
             "analysis": AnalystOutput(**parsed)
