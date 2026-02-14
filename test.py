@@ -12,7 +12,9 @@ result = graph.invoke({
 
 
 print(result["tasks"])
-print("*"*100)
+print("*"*170)
 print(result["documents"])
-print("*"*100)
+print("*"*170)
 print(result["analysis"])
+print("*"*170)
+print(result["report"])

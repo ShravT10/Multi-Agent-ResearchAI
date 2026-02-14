@@ -4,6 +4,7 @@ from graph.state import ResearchState
 from agents.planner import PlannerAgent
 from agents.retriever import RetrieverAgent
 from agents.analyst import AnalystAgent
+from agents.writer import WriterAgent
 
 from core.schemas import PlannerInput
 
@@ -17,6 +18,7 @@ sample_texts = [
 planner = PlannerAgent()
 retriever = RetrieverAgent(sample_texts)
 analyst = AnalystAgent()
+writer = WriterAgent()
 
 def planner_node(state: ResearchState):
     result = planner.run(
@@ -30,6 +32,8 @@ def retriever_node(state: ResearchState):
 def analyst_node(state: ResearchState):
     return analyst.run(state)
 
+def writer_node(state: ResearchState):
+    return writer.run(state)
 
 
 def build_graph():
@@ -38,11 +42,13 @@ def build_graph():
     workflow.add_node("planner", planner_node)
     workflow.add_node("retriever", retriever_node)
     workflow.add_node("analyst", analyst_node)
+    workflow.add_node("writer", writer_node)
 
     workflow.set_entry_point("planner")
 
     workflow.add_edge("planner", "retriever")
     workflow.add_edge("retriever","analyst")
-    workflow.add_edge("analyst",END)
+    workflow.add_edge("analyst", "writer")
+    workflow.add_edge("writer",END)
 
     return workflow.compile()
