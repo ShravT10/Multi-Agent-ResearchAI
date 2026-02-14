@@ -1,3 +1,6 @@
+import json
+import re
+
 from agents.base import BaseAgent
 from graph.state import ResearchState
 from core.schemas import AnalystOutput
@@ -5,11 +8,18 @@ from core.schemas import AnalystOutput
 class AnalystAgent(BaseAgent):
     def run(self, state: ResearchState) -> dict:
         question = state["question"]
-        documents = state["documents"]
+        documents_by_task = state["documents"]
 
-        context = "\n\n".join(
-            [doc.content for doc in documents]
-        )
+        all_docs = []
+
+        for task_id, docs in documents_by_task.items():
+            for doc in docs:
+                all_docs.append(
+                    f"[Task {task_id} | Score {doc.score}] {doc.content}"
+                )
+
+        context = "\n\n".join(all_docs)
+
 
         prompt = f"""
 You are a research analyst.
@@ -22,51 +32,33 @@ Research Question:
 Evidence:
 {context}
 
-Instructions:
-1. Extract verified facts directly supported by evidence.
-2. Identify uncertain or weakly supported claims.
-3. Provide 3-5 key insights.
-4. Be concise and structured.
+Return ONLY valid JSON in this format:
 
-Return response in this format:
+{{
+  "verified_facts": ["..."],
+  "uncertain_claims": ["..."],
+  "key_insights": ["..."]
+}}
 
-Verified Facts:
-- ...
-
-Uncertain Claims:
-- ...
-
-Key Insights:
-- ...
+Do not include explanations outside JSON.
 """
 
         response = self.llm.invoke(prompt).content
+        
+        # Extract JSON block using regex
+        json_match = re.search(r"\{.*\}", response, re.DOTALL)
 
-        # Simple parsing (improve later)
-        verified = []
-        uncertain = []
-        insights = []
+        if not json_match:
+            raise ValueError("No JSON object found in LLM response")
 
-        section = None
-        for line in response.split("\n"):
-            if "Verified Facts" in line:
-                section = "verified"
-            elif "Uncertain Claims" in line:
-                section = "uncertain"
-            elif "Key Insights" in line:
-                section = "insights"
-            elif line.strip().startswith("-"):
-                if section == "verified":
-                    verified.append(line.strip("- ").strip())
-                elif section == "uncertain":
-                    uncertain.append(line.strip("- ").strip())
-                elif section == "insights":
-                    insights.append(line.strip("- ").strip())
+        json_str = json_match.group()
+
+        try:
+            parsed = json.loads(json_str)
+
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON format returned by LLM")
 
         return {
-            "analysis": AnalystOutput(
-                verified_facts=verified,
-                uncertain_claims=uncertain,
-                key_insights=insights
-            )
+            "analysis": AnalystOutput(**parsed)
         }

@@ -12,8 +12,11 @@ class PlannerOutput(BaseModel):
     tasks: List[ResearchTask]
 
 class RetrievedDocument(BaseModel):
+    task_id: int
     source: str
+    score: float
     content: str
+
 
 class RetrieverOutput(BaseModel):
     documents: List[RetrievedDocument]

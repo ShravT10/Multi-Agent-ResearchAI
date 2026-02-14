@@ -5,10 +5,16 @@ class WriterAgent(BaseAgent):
     def run(self, state: ResearchState) -> dict:
         question = state["question"]
         analysis = state["analysis"]
-        documents = state["documents"]
+        documents_by_task = state["documents"]
 
-        # Collect unique sources
-        sources = list(set([doc.source for doc in documents]))
+        all_sources = set()
+
+        for task_id, docs in documents_by_task.items():
+            for doc in docs:
+                all_sources.add(doc.source)
+
+        sources = list(all_sources)
+
 
         prompt = f"""
 You are a research report writer.
@@ -22,6 +28,9 @@ Verified Facts:
 Key Insights:
 {analysis.key_insights}
 
+Sources:
+{sources}
+
 Write a professional research report in Markdown format with:
 
 1. Title
@@ -33,6 +42,7 @@ Write a professional research report in Markdown format with:
 
 Be concise and structured.
 """
+
 
         report = self.llm.invoke(prompt).content
 

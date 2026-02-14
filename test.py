@@ -5,7 +5,7 @@ graph = build_graph()
 result = graph.invoke({
     "question": "Impact of generative AI in Indian agriculture",
     "tasks": [],
-    "documents": [],
+    "documents": {},
     "analysis": None,
     "report": ""
 })

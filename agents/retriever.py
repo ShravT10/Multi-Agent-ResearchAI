@@ -10,20 +10,28 @@ class RetrieverAgent(BaseAgent):
 
     def run(self, state: ResearchState) -> dict:
         tasks = state["tasks"]
-        all_docs = []
+        documents_by_task = {}
 
         for task in tasks:
-            results = self.vector_store.similarity_search(
+            # similarity_search_with_score returns (doc, score)
+            results = self.vector_store.similarity_search_with_score(
                 task.description,
                 k=2
-            ) #Get docments
+            )
 
-            for doc in results:
-                all_docs.append(
+            task_docs = []
+
+            for doc, score in results:
+                task_docs.append(
                     RetrievedDocument(
+                        task_id=task.task_id,
                         source="local_vector_store",
+                        score=float(score),
                         content=doc.page_content
                     )
-                ) #iterate over documents and add page_content metadata of doc in all_docs 
+                )
 
-        return {"documents": all_docs}
+            documents_by_task[task.task_id] = task_docs
+
+        return {"documents": documents_by_task}
+
