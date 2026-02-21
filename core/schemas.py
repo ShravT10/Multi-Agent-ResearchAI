@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional , Dict 
 
 class ResearchTask(BaseModel):
     task_id: int
@@ -21,10 +21,14 @@ class RetrievedDocument(BaseModel):
 class RetrieverOutput(BaseModel):
     documents: List[RetrievedDocument]
 
-class AnalystOutput(BaseModel):
+class TaskAnalysis(BaseModel):
     verified_facts: List[str]
     uncertain_claims: List[str]
     key_insights: List[str]
 
+class AnalystOutput(BaseModel):
+    per_task_analysis: Dict[int, TaskAnalysis]
+
 class WriterOutput(BaseModel):
     report_markdown: str
+
