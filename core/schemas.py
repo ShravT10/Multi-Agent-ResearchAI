@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional , Dict 
+from typing import List, Optional , Dict , Literal
 
 class ResearchTask(BaseModel):
     task_id: int
@@ -32,3 +32,10 @@ class AnalystOutput(BaseModel):
 class WriterOutput(BaseModel):
     report_markdown: str
 
+class CriticOutput(BaseModel):
+    is_valid: bool
+    failure_type: Literal["reasoning", "retrieval", "coverage", "none"]
+    feedback: List[str]
+
+class RewriterOutput(BaseModel):
+    rewritten_tasks: Dict[int, str]

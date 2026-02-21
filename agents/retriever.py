@@ -13,10 +13,27 @@ class RetrieverAgent(BaseAgent):
         documents_by_task = {}
 
         for task in tasks:
-            # similarity_search_with_score returns (doc, score)
+            rewritten_tasks = state.get("rewritten_tasks")
+
+            ### RETRY LOGIC
+            if (
+                rewritten_tasks
+                and rewritten_tasks.rewritten_tasks
+                and task.task_id in rewritten_tasks.rewritten_tasks
+            ):
+                query = rewritten_tasks.rewritten_tasks[task.task_id]
+            else:
+                query = task.description
+            ################
+
+            base_k = 2
+            retry_count = state.get("retry_count", 0)
+
+            adaptive_k = base_k + (retry_count * 3)
+
             results = self.vector_store.similarity_search_with_score(
-                task.description,
-                k=2
+                query,
+                k=adaptive_k
             )
 
             task_docs = []
