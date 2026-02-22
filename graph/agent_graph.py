@@ -4,11 +4,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 from agents.planner import PlannerAgent
 from agents.retriever import RetrieverAgent
+from agents.web_retriever import WebRetrieverAgent
 from agents.analyst import AnalystAgent
 from agents.writer import WriterAgent
 from agents.critic import CriticAgent
+from agents.knowledge_consolidator import KnowledgeConsolidatorAgent
 from agents.query_rewriter import QueryRewriterAgent
-from agents.web_retriever import WebRetrieverAgent
+
 
 
 from core.schemas import PlannerInput
@@ -25,6 +27,7 @@ retriever = RetrieverAgent(sample_texts)
 analyst = AnalystAgent()
 writer = WriterAgent()
 critic = CriticAgent()
+knowledge_consolidator = KnowledgeConsolidatorAgent()
 query_rewriter = QueryRewriterAgent()
 web_retriever = WebRetrieverAgent()
 
@@ -123,7 +126,7 @@ def critic_router(state: ResearchState):
     critic = state["critic"]
 
     if critic.is_valid:
-        return "writer"
+        return "knowledge_consolidator"
 
     if state["retry_count"] >= 2:
         return "writer"
@@ -144,6 +147,10 @@ def critic_router(state: ResearchState):
 
     return "writer"
 
+def knowledge_consolidator_node(state: ResearchState):
+    return knowledge_consolidator.run(state)
+
+
 def query_rewriter_node(state: ResearchState):
     return query_rewriter.run(state)
 
@@ -160,6 +167,7 @@ def build_graph():
     workflow.add_node("merge", merge_node)
     workflow.add_node("analyst", analyst_node)
     workflow.add_node("critic", critic_node)
+    workflow.add_node("knowledge_consolidator", knowledge_consolidator_node)
     workflow.add_node("query_rewriter", query_rewriter_node)
     workflow.add_node("writer", writer_node)
 
@@ -170,6 +178,7 @@ def build_graph():
     workflow.add_edge("merge", "analyst")
     workflow.add_edge("analyst", "critic")
     workflow.add_conditional_edges("critic", critic_router)
+    workflow.add_edge("knowledge_consolidator", "writer")
     workflow.add_edge("query_rewriter", "retriever")
     workflow.add_edge("writer", END)
 

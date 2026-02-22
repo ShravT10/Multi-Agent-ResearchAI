@@ -3,7 +3,7 @@ from graph.agent_graph import build_graph
 graph = build_graph()
 
 result = graph.invoke({
-    "question": "Impact of generative AI in Indian agriculture",
+    "question": "What is the effect of social media on the younger generations?",
     "tasks": [],
     "rewritten_tasks": None,
     "documents": {},
