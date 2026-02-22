@@ -7,6 +7,7 @@ result = graph.invoke({
     "tasks": [],
     "rewritten_tasks": None,
     "documents": {},
+    "web_documents": {},
     "analysis": None,
     "retry_count": 0,
     "report": ""

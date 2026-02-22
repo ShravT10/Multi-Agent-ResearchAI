@@ -1,5 +1,6 @@
 from langgraph.graph import StateGraph, END
 from graph.state import ResearchState
+from concurrent.futures import ThreadPoolExecutor
 
 from agents.planner import PlannerAgent
 from agents.retriever import RetrieverAgent
@@ -7,6 +8,7 @@ from agents.analyst import AnalystAgent
 from agents.writer import WriterAgent
 from agents.critic import CriticAgent
 from agents.query_rewriter import QueryRewriterAgent
+from agents.web_retriever import WebRetrieverAgent
 
 
 from core.schemas import PlannerInput
@@ -24,6 +26,7 @@ analyst = AnalystAgent()
 writer = WriterAgent()
 critic = CriticAgent()
 query_rewriter = QueryRewriterAgent()
+web_retriever = WebRetrieverAgent()
 
 
 def planner_node(state: ResearchState):
@@ -34,6 +37,40 @@ def planner_node(state: ResearchState):
 
 def retriever_node(state: ResearchState):
     return retriever.run(state)
+
+def hybrid_retriever_node(state: ResearchState):
+    results = {}
+
+    def run_local():
+        return retriever.run(state)
+
+    def run_web():
+        return web_retriever.run(state)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_local = executor.submit(run_local)
+        future_web = executor.submit(run_web)
+
+        local_result = future_local.result()
+        web_result = future_web.result()
+
+    # Merge local + web documents per task
+    merged_docs = {}
+
+    local_docs = local_result.get("documents", {})
+    web_docs = web_result.get("web_documents", {})
+
+    for task_id in state["tasks"]:
+        tid = task_id.task_id
+        merged_docs[tid] = []
+
+        if tid in local_docs:
+            merged_docs[tid].extend(local_docs[tid])
+
+        if tid in web_docs:
+            merged_docs[tid].extend(web_docs[tid])
+
+    return {"documents": merged_docs}
 
 def analyst_node(state: ResearchState):
     result = analyst.run(state)
@@ -119,7 +156,7 @@ def build_graph():
     workflow = StateGraph(ResearchState)
 
     workflow.add_node("planner", planner_node)
-    workflow.add_node("retriever", retriever_node)
+    workflow.add_node("retriever", hybrid_retriever_node)
     workflow.add_node("merge", merge_node)
     workflow.add_node("analyst", analyst_node)
     workflow.add_node("critic", critic_node)

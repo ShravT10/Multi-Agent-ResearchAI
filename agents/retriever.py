@@ -1,12 +1,13 @@
 from agents.base import BaseAgent
 from core.schemas import RetrieverOutput, RetrievedDocument
 from graph.state import ResearchState
-from core.vector_store import create_vector_store
+from core.vector_store import VectorStoreManager
 
+vector_manager = VectorStoreManager()
 class RetrieverAgent(BaseAgent):
     def __init__(self, texts):
         super().__init__()
-        self.vector_store = create_vector_store(texts) #Create a vectore store with given text(parameter)
+        self.vector_store = vector_manager.get_vector_store() #Create a vectore store with given text(parameter)
 
     def run(self, state: ResearchState) -> dict:
         tasks = state["tasks"]

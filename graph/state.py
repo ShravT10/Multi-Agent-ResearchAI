@@ -7,6 +7,7 @@ class ResearchState(TypedDict):
     tasks: List[ResearchTask]
     rewritten_tasks: RewriterOutput
     documents: Dict[int ,List[RetrievedDocument]]
+    web_documents: Dict[int, List[RetrievedDocument]]
     analysis: AnalystOutput
     critic: CriticOutput
     retry_count: int
