@@ -10,3 +10,5 @@ python-dotenv
 pydantic
 sentence-transformers
 duckduckgo-search
+pypdf 
+python-docx
