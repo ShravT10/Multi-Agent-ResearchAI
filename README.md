@@ -8,23 +8,7 @@ This project implements a multi-agent workflow using **LangGraph**,**LangChain**
 
 ### Multi-Agent Workflow
 
-```mermaid
-graph TD
-    UserQuery[User Query] --> Planner[Planner Agent]
-    Planner -->|Task Decomposition| Retriever[Retriever Agent]
-    Retriever -->|Local FAISS + Web Search| Merger[Merger Node]
-    Merger -->|Deduplicated Context| Analyst[Analyst Agent]
-    Analyst -->|Verification & Synthesis| Critic[Critic Agent]
-    
-    Critic -->|Validation Failed| QueryRewriter[Query Rewriter]
-    QueryRewriter --> Retriever
-    
-    Critic -->|Insights Valid| Consolidator[Knowledge Consolidator]
-    Consolidator -->|Persist Web Insights| VectorDB[(Local FAISS Index)]
-    Consolidator --> Writer[Writer Agent]
-    
-    Writer -->|Markdown Report| UI[React Frontend]
-```
+![Multi-Agent Workflow](Images/Workflow.png)
 
 ## Features
 
