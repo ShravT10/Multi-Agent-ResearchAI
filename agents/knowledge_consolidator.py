@@ -2,7 +2,7 @@ import numpy as np
 from agents.base import BaseAgent
 from graph.state import ResearchState
 from langchain_huggingface import HuggingFaceEmbeddings
-from core.vector_store import VectorStoreManager
+from core.vector_store import vector_manager
 
 
 class KnowledgeConsolidatorAgent(BaseAgent):
@@ -12,8 +12,7 @@ class KnowledgeConsolidatorAgent(BaseAgent):
         self.embedding_model = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
-        self.vector_manager = VectorStoreManager()
-        self.vector_store = self.vector_manager.get_vector_store()
+        self.vector_store = vector_manager.get_vector_store()
 
     def cosine_similarity(self, vec1, vec2):
         vec1 = np.array(vec1)

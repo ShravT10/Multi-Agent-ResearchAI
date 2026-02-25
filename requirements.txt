@@ -9,6 +9,6 @@ faiss-cpu
 python-dotenv
 pydantic
 sentence-transformers
-duckduckgo-search
+ddgs
 pypdf 
 python-docx

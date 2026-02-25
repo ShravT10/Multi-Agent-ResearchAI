@@ -1,7 +1,7 @@
 from agents.base import BaseAgent
 from graph.state import ResearchState
 from core.schemas import RetrievedDocument
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from langchain_huggingface import HuggingFaceEmbeddings
 import numpy as np
 

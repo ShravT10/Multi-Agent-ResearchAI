@@ -11,19 +11,10 @@ from agents.critic import CriticAgent
 from agents.knowledge_consolidator import KnowledgeConsolidatorAgent
 from agents.query_rewriter import QueryRewriterAgent
 
-
-
 from core.schemas import PlannerInput
 
-sample_texts = [
-    "Generative AI helps optimize crop yield through predictive analytics.",
-    "AI adoption in India is increasing in agriculture sector.",
-    "Challenges include lack of infrastructure in rural areas.",
-    "Government policies are encouraging agri-tech startups."
-]
-
 planner = PlannerAgent()
-retriever = RetrieverAgent(sample_texts)
+retriever = RetrieverAgent()
 analyst = AnalystAgent()
 writer = WriterAgent()
 critic = CriticAgent()

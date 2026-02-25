@@ -28,3 +28,6 @@ class VectorStoreManager:
 
     def get_vector_store(self):
         return self.vector_store
+
+# Centralized instance to prevent redundant loading
+vector_manager = VectorStoreManager()
